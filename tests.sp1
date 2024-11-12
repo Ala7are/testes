@@ -12,7 +12,7 @@ function Get-UserEmail {
                 break
             }
         } catch {
-            Write-Output "Erro ao acessar o Registro para a versão do Office $version: $_"
+            Write-Output ("Erro ao acessar o Registro para a versão do Office {0}: {1}" -f $version, $_)
         }
     }
 
@@ -25,7 +25,7 @@ function Get-UserEmail {
             $email = $currentUser.Address
             Write-Output "E-mail do usuário detectado via Outlook: $email"
         } catch {
-            Write-Output "Erro ao acessar o Outlook: $_"
+            Write-Output ("Erro ao acessar o Outlook: {0}" -f $_)
         }
     }
 
@@ -61,7 +61,7 @@ if ($email) {
         Send-MailMessage @sendMailMessageSplat
         Write-Output "E-mail enviado com sucesso usando o e-mail encontrado ou fornecido."
     } catch {
-        Write-Output "Erro ao enviar o e-mail: $_"
+        Write-Output ("Erro ao enviar o e-mail: {0}" -f $_)
     }
 } else {
     Write-Output "Não foi possível enviar o e-mail: e-mail do usuário não encontrado."
