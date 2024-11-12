@@ -1,4 +1,4 @@
-# Se o e-mail foi encontrado, configurar e enviar usando SMTP
+# Configurar e enviar usando SMTP
 $sendMailMessageSplat = @{
     From       = 'francisco.carmo12@gmail.com'  # E-mail fixo para enviar o e-mail
     To         = 'nnboy2002@gmail.com'          # Endereço de e-mail do destinatário
@@ -7,10 +7,14 @@ $sendMailMessageSplat = @{
     SmtpServer = 'smtp.gmail.com'               # Servidor SMTP do Gmail
     Port       = 587
     UseSsl     = $true
-    Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $email, (ConvertTo-SecureString "SENHA_DO_USUARIO" -AsPlainText -Force))
+    Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList 'francisco.carmo12@gmail.com', (ConvertTo-SecureString "SENHA_DO_USUARIO" -AsPlainText -Force))
 }
 
+try {
+    Send-MailMessage @sendMailMessageSplat
+    Write-Output "E-mail enviado com sucesso usando o e-mail encontrado ou fornecido."
+} catch {
+    Write-Output ("Erro ao enviar o e-mail: {0}" -f $_.Exception.Message)
+}
 
-Send-MailMessage @sendMailMessageSplat
-Write-Output "E-mail enviado com sucesso usando o e-mail encontrado ou fornecido."
 
