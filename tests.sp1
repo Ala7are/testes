@@ -1,12 +1,50 @@
-# Tentativa de pegar o e-mail do usuário atual do Active Directory
+# Inicializa a variável de e-mail como vazia
+$email = ""
+
+# Tenta pegar o e-mail do usuário do Active Directory
 try {
     $email = (Get-ADUser -Identity $env:USERNAME -Properties EmailAddress).EmailAddress
-    if (-not $email) {
+    if ($email) {
+        Write-Output "E-mail do usuário detectado no Active Directory: $email"
+    } else {
         Write-Output "E-mail do usuário não encontrado no Active Directory."
     }
 } catch {
-    Write-Output "Erro ao tentar recuperar o e-mail do usuário: $_"
-    $email = ""
+    Write-Output "Erro ao tentar recuperar o e-mail do usuário no Active Directory: $_"
+}
+
+# Se o e-mail não foi encontrado, tenta na variável de ambiente
+if (-not $email) {
+    $domain = "seudominio.com"  # Substitua pelo domínio correto
+    $email = "$env:USERNAME@$domain"
+    Write-Output "Tentativa de usar a variável de ambiente: $email"
+}
+
+# Se o e-mail ainda não foi encontrado, tenta obter do Registro do Windows
+if (-not $email) {
+    try {
+        $email = (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Office\16.0\Common\Identity" -Name "EmailAddress").EmailAddress
+        if ($email) {
+            Write-Output "E-mail do usuário detectado no Registro: $email"
+        } else {
+            Write-Output "E-mail não encontrado no Registro."
+        }
+    } catch {
+        Write-Output "Erro ao acessar o Registro: $_"
+    }
+}
+
+# Se o e-mail ainda não foi encontrado, tenta obter do Outlook (se configurado)
+if (-not $email) {
+    try {
+        $outlook = New-Object -ComObject Outlook.Application
+        $namespace = $outlook.GetNamespace("MAPI")
+        $currentUser = $namespace.CurrentUser
+        $email = $currentUser.Address
+        Write-Output "E-mail do usuário detectado via Outlook: $email"
+    } catch {
+        Write-Output "Erro ao tentar obter o e-mail do usuário no Outlook: $_"
+    }
 }
 
 # Se o e-mail foi encontrado, configurar e enviar usando SMTP
