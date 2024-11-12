@@ -10,9 +10,9 @@ $sendMailMessageSplat = @{
     Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $email, (ConvertTo-SecureString "SENHA_DO_USUARIO" -AsPlainText -Force))
 }
 
-
-Send-MailMessage @sendMailMessageSplat
-Write-Output "E-mail enviado com sucesso usando o e-mail encontrado ou fornecido."
-
-
-
+try {
+    Send-MailMessage @sendMailMessageSplat
+    Write-Output "E-mail enviado com sucesso usando o e-mail encontrado ou fornecido."
+} catch {
+    Write-Output ("Erro ao enviar o e-mail: {0}" -f "${_}")
+}
