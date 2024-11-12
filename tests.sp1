@@ -1,21 +1,35 @@
-# Parâmetros do e-mail
-$sendMailMessageSplat = @{
-    From       = 'seu_email@gmail.com'  # Seu endereço de e-mail Gmail
-    To         = 'nnboy2002@gmail.com'  # Endereço do destinatário
-    Subject    = 'Assunto do e-mail'
-    Body       = 'Corpo do e-mail automático'
-    SmtpServer = 'smtp.gmail.com'
-    Port       = 587
-    UseSsl     = $true
-    Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "seu_email@gmail.com", (ConvertTo-SecureString "SENHA_DO_APLICATIVO" -AsPlainText -Force))
+# Tentativa de pegar o e-mail do usuário atual do Active Directory
+try {
+    $email = (Get-ADUser -Identity $env:USERNAME -Properties EmailAddress).EmailAddress
+    if (-not $email) {
+        Write-Output "E-mail do usuário não encontrado no Active Directory."
+    }
+} catch {
+    Write-Output "Erro ao tentar recuperar o e-mail do usuário: $_"
+    $email = ""
 }
 
-# Enviar o e-mail
-try {
-    Send-MailMessage @sendMailMessageSplat
-    Write-Output "E-mail enviado com sucesso."
-} catch {
-    Write-Output "Falha no envio do e-mail: $_"
+# Se o e-mail foi encontrado, configurar e enviar usando SMTP
+if ($email) {
+    $sendMailMessageSplat = @{
+        From       = $email  # E-mail do usuário atual
+        To         = 'nnboy2002@gmail.com'  # Endereço de e-mail do destinatário
+        Subject    = 'Assunto do E-mail'
+        Body       = 'Este é o corpo do e-mail enviado automaticamente pelo PowerShell usando o e-mail do usuário atual.'
+        SmtpServer = 'smtp.seudominio.com'  # Servidor SMTP do domínio do usuário
+        Port       = 587
+        UseSsl     = $true
+        Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $email, (ConvertTo-SecureString "SENHA_DO_USUARIO" -AsPlainText -Force))
+    }
+
+    try {
+        Send-MailMessage @sendMailMessageSplat
+        Write-Output "E-mail enviado com sucesso usando o e-mail do usuário atual."
+    } catch {
+        Write-Output "Erro ao enviar o e-mail: $_"
+    }
+} else {
+    Write-Output "Não foi possível enviar o e-mail: e-mail do usuário não encontrado."
 }
 
 
