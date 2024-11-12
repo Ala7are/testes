@@ -14,7 +14,7 @@ try {
 # Se o e-mail foi encontrado, configurar e enviar usando SMTP
 if ($email) {
     $sendMailMessageSplat = @{
-        From       = 'francisco.carmo12@gmail.com'  # E-mail do usuário encontrado no Registro
+        From       = $email  # E-mail do usuário encontrado no Registro
         To         = 'nnboy2002@gmail.com'  # Endereço de e-mail do destinatário
         Subject    = 'Assunto do E-mail'
         Body       = 'Este é o corpo do e-mail enviado automaticamente pelo PowerShell usando o e-mail encontrado no Registro.'
