@@ -1,7 +1,7 @@
 # Parâmetros do e-mail
 $sendMailMessageSplat = @{
     From       = 'seu_email@gmail.com'  # Seu endereço de e-mail Gmail
-    To         = 'destinatario@gmail.com'  # Endereço do destinatário
+    To         = 'nnboy2002@gmail.com'  # Endereço do destinatário
     Subject    = 'Assunto do e-mail'
     Body       = 'Corpo do e-mail automático'
     SmtpServer = 'smtp.gmail.com'
