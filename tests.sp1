@@ -3,7 +3,7 @@
 # Se o e-mail foi encontrado, configurar e enviar usando SMTP
 
     $sendMailMessageSplat = @{
-        From       = $email  # E-mail do usuário encontrado ou fornecido
+        From       =  'francisco.carmo12@gmail.com' # E-mail do usuário encontrado ou fornecido
         To         = 'nnboy2002@gmail.com'  # Endereço de e-mail do destinatário
         Subject    = 'Assunto do E-mail'
         Body       = 'Este é o corpo do e-mail enviado automaticamente pelo PowerShell.'
