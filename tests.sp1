@@ -1,13 +1,23 @@
-# Defina os detalhes do e-mail
-$to = "nnboy2002@gmail.com"
-$subject = "Teste de Envio de E-mail"
-$body = "Este é um teste de envio de e-mail a partir do PowerShell."
+# Parâmetros do e-mail
+$sendMailMessageSplat = @{
+    From       = 'seu_email@gmail.com'  # Seu endereço de e-mail Gmail
+    To         = 'destinatario@gmail.com'  # Endereço do destinatário
+    Subject    = 'Assunto do e-mail'
+    Body       = 'Corpo do e-mail automático'
+    SmtpServer = 'smtp.gmail.com'
+    Port       = 587
+    UseSsl     = $true
+    Credential = (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "seu_email@gmail.com", (ConvertTo-SecureString "SENHA_DO_APLICATIVO" -AsPlainText -Force))
+}
 
-# Construa a URL mailto com os detalhes do e-mail
-$mailtoLink = "mailto:$to?subject=$([System.Uri]::EscapeDataString($subject))&body=$([System.Uri]::EscapeDataString($body))"
+# Enviar o e-mail
+try {
+    Send-MailMessage @sendMailMessageSplat
+    Write-Output "E-mail enviado com sucesso."
+} catch {
+    Write-Output "Falha no envio do e-mail: $_"
+}
 
-# Abra o link mailto no navegador padrão
-Start-Process $mailtoLink
 
 
 
