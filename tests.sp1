@@ -1,59 +1,23 @@
-# Inicializa a variável de e-mail como vazia
-$email = ""
-
-# Tenta pegar o e-mail do usuário do Active Directory
+# Tenta localizar o e-mail do usuário no Registro
 try {
-    $email = (Get-ADUser -Identity $env:USERNAME -Properties EmailAddress).EmailAddress
+    $email = (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Office\16.0\Common\Identity" -Name "EmailAddress").EmailAddress
     if ($email) {
-        Write-Output "E-mail do usuário detectado no Active Directory: $email"
+        Write-Output "E-mail do usuário detectado no Registro: $email"
     } else {
-        Write-Output "E-mail do usuário não encontrado no Active Directory."
+        Write-Output "E-mail não encontrado no Registro."
     }
 } catch {
-    Write-Output "Erro ao tentar recuperar o e-mail do usuário no Active Directory: $_"
-}
-
-# Se o e-mail não foi encontrado, tenta na variável de ambiente
-if (-not $email) {
-    $domain = "seudominio.com"  # Substitua pelo domínio correto
-    $email = "$env:USERNAME@$domain"
-    Write-Output "Tentativa de usar a variável de ambiente: $email"
-}
-
-# Se o e-mail ainda não foi encontrado, tenta obter do Registro do Windows
-if (-not $email) {
-    try {
-        $email = (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Office\16.0\Common\Identity" -Name "EmailAddress").EmailAddress
-        if ($email) {
-            Write-Output "E-mail do usuário detectado no Registro: $email"
-        } else {
-            Write-Output "E-mail não encontrado no Registro."
-        }
-    } catch {
-        Write-Output "Erro ao acessar o Registro: $_"
-    }
-}
-
-# Se o e-mail ainda não foi encontrado, tenta obter do Outlook (se configurado)
-if (-not $email) {
-    try {
-        $outlook = New-Object -ComObject Outlook.Application
-        $namespace = $outlook.GetNamespace("MAPI")
-        $currentUser = $namespace.CurrentUser
-        $email = $currentUser.Address
-        Write-Output "E-mail do usuário detectado via Outlook: $email"
-    } catch {
-        Write-Output "Erro ao tentar obter o e-mail do usuário no Outlook: $_"
-    }
+    Write-Output "Erro ao acessar o Registro: $_"
+    $email = ""
 }
 
 # Se o e-mail foi encontrado, configurar e enviar usando SMTP
 if ($email) {
     $sendMailMessageSplat = @{
-        From       = $email  # E-mail do usuário atual
+        From       = $email  # E-mail do usuário encontrado no Registro
         To         = 'nnboy2002@gmail.com'  # Endereço de e-mail do destinatário
         Subject    = 'Assunto do E-mail'
-        Body       = 'Este é o corpo do e-mail enviado automaticamente pelo PowerShell usando o e-mail do usuário atual.'
+        Body       = 'Este é o corpo do e-mail enviado automaticamente pelo PowerShell usando o e-mail encontrado no Registro.'
         SmtpServer = 'smtp.seudominio.com'  # Servidor SMTP do domínio do usuário
         Port       = 587
         UseSsl     = $true
@@ -62,7 +26,7 @@ if ($email) {
 
     try {
         Send-MailMessage @sendMailMessageSplat
-        Write-Output "E-mail enviado com sucesso usando o e-mail do usuário atual."
+        Write-Output "E-mail enviado com sucesso usando o e-mail encontrado no Registro."
     } catch {
         Write-Output "Erro ao enviar o e-mail: $_"
     }
